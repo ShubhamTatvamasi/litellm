@@ -2,20 +2,30 @@
 
 Create new user:
 ```bash
-MASTER=<LITELLM_MASTER_KEY>          # from litellm-secrets / the scratchpad credentials file
-B=https://litellm.nvidia-droplet.shubhamtatvamasi.com
+MASTER=$(kubectl -n litellm get secret litellm-secrets -o jsonpath='{.data.masterkey}' | base64 -d)
+B=https://litellm.nvidia-dynamo.shubhamtatvamasi.com
 
-curl -s $B/user/new \
+# 1. create the user (skip if it already exists; you get a 409)
+curl -s "$B/user/new" \
   -H "Authorization: Bearer $MASTER" -H 'Content-Type: application/json' \
   -d '{"user_id":"shubham","user_email":"shubham.tatvamasi@portainer.io","user_role":"proxy_admin","auto_create_key":false,"send_invite_email":false}'
-```
 
-Create an invitation for the user:
-```
-curl -s $B/invitation/new \
+# 2. make a 10-minute key owned by that user (the master key's own user doesn't exist, so it can't create invitations)
+TMP=$(curl -s "$B/key/generate" \
   -H "Authorization: Bearer $MASTER" -H 'Content-Type: application/json' \
-  -d '{"user_id":"shubham"}'
-# → {"id":"b01ce98c-154a-4c51-aeee-209e3a8a223f","user_id":"shubham","is_accepted":false,"expires_at":"2026-10-16T…"}
+  -d '{"user_id":"shubham","duration":"10m","key_alias":"invite-bootstrap"}' | jq -r .key)
+
+# 3. create the invitation with that key and print the link
+ID=$(curl -s "$B/invitation/new" \
+  -H "Authorization: Bearer $TMP" -H 'Content-Type: application/json' \
+  -d '{"user_id":"shubham"}' | jq -r .id)
+echo "$B/ui?invitation_id=$ID"
+
+# 4. delete the temporary key
+curl -s "$B/key/delete" \
+  -H "Authorization: Bearer $MASTER" -H 'Content-Type: application/json' \
+  -d "{\"keys\":[\"$TMP\"]}"
+
 ```
 
 
