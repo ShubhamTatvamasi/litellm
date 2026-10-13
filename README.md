@@ -41,7 +41,7 @@ https://litellm.nvidia-dynamo.shubhamtatvamasi.com/ui?invitation_id=<id>
 
 Get Lite LLM secrets:
 ```bash
-kgse litellm-secrets -o yaml | \
+kubectl -n litellm get secret litellm-secrets -o yaml | \
   yq '.data |= with_entries(.value |= @base64d)'
 ```
 
