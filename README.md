@@ -15,11 +15,12 @@ curl -s "$B/user/new" \
   -d '{"user_id":"shubham","user_email":"shubham.tatvamasi@portainer.io","user_role":"proxy_admin","auto_create_key":false,"send_invite_email":false}'
 ```
 
-Make a 10-minute key owned by that user (the master key's own user doesn't exist, so it can't create invitations)
+Make a 10-minute key owned by that user (the master key's own user doesn't exist, so it can't create invitations).
+The alias must be unique across all keys, so append a timestamp; reusing a fixed alias returns a 400 and `jq -r .key` prints `null`.
 ```bash
 TMP=$(curl -s "$B/key/generate" \
   -H "Authorization: Bearer $MASTER" -H 'Content-Type: application/json' \
-  -d '{"user_id":"shubham","duration":"10m","key_alias":"invite-bootstrap"}' | jq -r .key)
+  -d "{\"user_id\":\"shubham\",\"duration\":\"10m\",\"key_alias\":\"invite-bootstrap-$(date +%s)\"}" | jq -r .key)
 ```
 
 Create the invitation with that key and print the link
