@@ -38,7 +38,7 @@ curl -s "$B/key/delete" \
   -d "{\"keys\":[\"$TMP\"]}"
 ```
 
-https://litellm.nvidia-dynamo.shubhamtatvamasi.com/ui?invitation_id=<id>
+https://litellm.droplet.shubhamtatvamasi.com/ui?invitation_id=<id>
 
 Get Lite LLM secrets:
 ```bash
