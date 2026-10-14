@@ -5,7 +5,7 @@
 Setup domain and key:
 ```bash
 MASTER=$(kubectl -n litellm get secret litellm-secrets -o jsonpath='{.data.masterkey}' | base64 -d)
-B=https://litellm.nvidia-dynamo.shubhamtatvamasi.com
+B=https://litellm.droplet.shubhamtatvamasi.com
 ```
 
 Create the user (skip if it already exists; you get a 409)
